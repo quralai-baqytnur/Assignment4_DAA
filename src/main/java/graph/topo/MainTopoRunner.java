@@ -21,8 +21,6 @@ public class MainTopoRunner {
 
         TopologicalSort topo = new TopologicalSort(g, m);
         List<Integer> order = topo.run();
-
-        System.out.println("=== Topological Sort ===");
         System.out.println("Order: " + order);
         System.out.println("Pushes: " + m.get("pushes"));
         System.out.println("Pops: " + m.get("pops"));
