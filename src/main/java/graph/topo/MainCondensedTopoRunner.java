@@ -1,13 +1,15 @@
 package graph.topo;
 
 import graph.core.Graph;
+import graph.scc.CondensationGraph;
+import graph.scc.KosarajuSCC;
+import graph.scc.SCCResult;
 import utils.GraphReader;
 import utils.Metrics;
-
 import java.nio.file.Path;
 import java.util.*;
 
-public class MainTopoRunner {
+public class MainCondensedTopoRunner {
 
     static class DummyMetrics implements Metrics {
         private final Map<String, Long> map = new HashMap<>();
@@ -16,14 +18,18 @@ public class MainTopoRunner {
     }
 
     public static void main(String[] args) throws Exception {
-        Graph g = GraphReader.fromJsonFile(Path.of("data/small_dag.json"));
+        Graph g = GraphReader.fromJsonFile(Path.of("data/small_cyclic.json"));
         DummyMetrics m = new DummyMetrics();
 
-        TopologicalSort topo = new TopologicalSort(g, m);
+        KosarajuSCC scc = new KosarajuSCC(g, m);
+        SCCResult sccRes = scc.run();
+
+        CondensationGraph cond = new CondensationGraph(g, sccRes);
+        Graph dag = cond.buildCondensedGraph();
+
+        TopologicalSort topo = new TopologicalSort(dag, m);
         List<Integer> order = topo.run();
-        System.out.println("Order: " + order);
-        System.out.println("Pushes: " + m.get("pushes"));
-        System.out.println("Pops: " + m.get("pops"));
-        System.out.println("Edges relaxed: " + m.get("edges_relaxed"));
+
+        System.out.println("Topological order of SCC DAG: " + order);
     }
 }
